@@ -14,7 +14,6 @@
 #include "circle.h"
 #include "pads.h"
 #include "psp.h"
-#include "sha256.h"
 #include "encryption.h"
 #include "decryption.h"
 #include "mpir.h"
