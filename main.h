@@ -155,11 +155,10 @@ SPAE_DLL_EXPIMP enc_error_t SPAE_CALL merge_requested_pads(char* result, size_t*
 
 
 /* ------------------DECRYPTION FUNCTIONS------------------------------------------------------------------ */
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
+SPAE_DLL_EXPIMP decr_error_t SPAE_CALL decrypt_file_progressive(wchar_t* f_name, char* final_name, char* circle, char* decr_cfg_f_path, size_t member_id, unsigned int is_first_usage, wchar_t* error_desc);
+size_t* get_list_of_requested_pads_ID_history(char* circle, size_t first_p, size_t last_p, size_t* req_pads_count, char* error_desc);
+size_t* get_list_of_requested_pads_ID_progressive(char* circle, size_t first_p, size_t requestedBitsCount, size_t* req_pads_count, char* error_desc);
+decr_error_t decrypt_file_from_history(wchar_t* f_name, char* final_name, wchar_t* error_desc);
 
 SPAE_DLL_EXPIMP void SPAE_CALL create_file_with_name(char* content, char* name);
 SPAE_DLL_EXPIMP int  SPAE_CALL get_last_used_pad_id_encr(char* enc_cfg_f_path, char* error_desc);

@@ -89,9 +89,9 @@ size_t* get_requested_pads_list(char* circle, size_t mID, size_t requestedBitsCo
 size_t* collect_list_of_requested_pads_ID(char* circle, size_t mID, size_t requestedBitsCount, size_t availableBitsCount, size_t usedBitsCount, size_t* requestPadsCount, size_t* enc_cfg_offset, char* error_desc);
 size_t* get_member_pads_indexes(struct circle c_s, size_t m_ID, size_t membs_total_count, size_t* count);
 char* get_pps_and_prog_file_contents(char* circle, const char* pads_dir, size_t prog_num, char* error_desc);
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
+struct bitsInfo w_compute_bits_info(wchar_t* binContent, char* circle, char* enc_cfg_f_path, size_t member_id, unsigned int is_first_call, char* error_desc);
+struct encryptionCfg prepare_enc_cfg_file_data(const char* pad_path, size_t* pads_list, size_t mem_id, size_t offset, char* error_desc);
+void remove_spec_char(wchar_t* c, size_t pp);
 void get_spec_PPS(struct encryptionCfg e_s, char* content, wchar_t* spec_pps);
 void get_spec_text(struct encryptionCfg e_s, char* bin_content, char* prog_content, wchar_t* spec_text);
 void insert_spec_char(struct encryptionCfg e_s, wchar_t* spec_content, wchar_t* result);
@@ -101,3 +101,4 @@ enc_error_t write_cipher_to_file(const wchar_t* f_name, const wchar_t* cipher, c
 encCfgResponse get_option_from_enc_cfg(char* path, char* optName, char* error_desc);
 size_t* get_member_full_pad_IDs(size_t* all_list, size_t total_pads_count, size_t available_bits_count);
 int get_member_partially_available_Pad_index(size_t* padList, size_t total_pads_count, size_t availableBits);
+void get_PPS_by_points_array(wchar_t* pps, wchar_t* c, size_t* points);

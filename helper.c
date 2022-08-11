@@ -455,8 +455,6 @@ wchar_t* int2wstr(size_t in)
     return vOut;
 }
 
-/* Decryption item removed */
-
 void write_log(FILE* f, const char* data)
 {
     fprintf(f, "%s", data);
@@ -503,5 +501,59 @@ int is_array_set_to_zero(size_t* a, size_t size)
     else
     {
         return 0;
+    }
+}
+
+wchar_t* wget_file_name_from_path(wchar_t* path)
+{
+    if (path == NULL)
+        return NULL;
+
+    size_t len = 0;
+
+    wchar_t* pFileName = ALLOC(sizeof(wchar_t) * _MAX_PATH);
+    for (wchar_t* pCur = path; *pCur != '\0'; pCur++)
+    {
+        if (*pCur == '/' || *pCur == '\\')
+        {
+            wcscpy_s(pFileName, _MAX_PATH, pCur + 1);
+            //pFileName = pCur + 1;
+            len = wcslen(pCur);
+        }
+    }
+
+    pFileName[len] = '\0';
+
+    return pFileName;
+}
+
+int find_str_in_file(char const* fname, char* str)
+{
+    FILE* f = NULL;
+    errno_t err;
+    int ret_pos;
+
+    err = fopen_s(&f, fname, "rb");
+    if (f == NULL)
+    {
+        return -1;
+    }
+
+    char* buffer = ALLOC(sizeof(char) * 8388608);
+    fread(buffer, 1, 8388608, f);
+
+    char* pos = strstr(buffer, str);
+    if (pos)
+    {
+        fclose(f);
+        ret_pos = (int)(pos - buffer);
+        FREE(buffer);
+        return ret_pos;
+    }
+    else
+    {
+        FREE(buffer);
+        fclose(f);
+        return -1;
     }
 }

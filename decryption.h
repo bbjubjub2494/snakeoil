@@ -6,7 +6,7 @@
 #include "encryption.h"
 #include "spechars.h"
 
-/// @brief Error codes for library "pads"
+/// @brief Error codes for library "decry"
 typedef enum decr_error_e
 {
 	/// No error
@@ -51,15 +51,16 @@ typedef enum decr_error_e
 
 } decr_error_t;
 
+#define DECR_CONSTANTLY_UPD_FNAME "C:/......dat"
 
-struct decryptionCfg 
+struct decryptionCfg
 {
 	char circle_name[256];
 	char dec_time[100];
 	char pps[42];
 
 	wchar_t spae_name[100];
-	
+
 	size_t member_number;
 	size_t first_pad;
 	size_t last_pad;
@@ -67,8 +68,9 @@ struct decryptionCfg
 };
 
 /*-------Opearations for decryptionCfg structure---------------*/
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
-/* Decryption item removed */
+decr_error_t insert_data_into_dec_cfg(const char* cfg_path, struct decryptionCfg data, wchar_t* error_desc);
+struct decryptionCfg* get_decr_data_by_SPAE_name(const wchar_t* spae_name, wchar_t* error_desc);
+
+void get_binary_from_c_text(wchar_t* spec_text, struct encryptionCfg e_s, const char* prog_content, char* bin_data);
+wchar_t** parse_file_name(wchar_t* s, const wchar_t* delim);
+enc_error_t write_plain_txt_to_file(const char* f_name, const unsigned char* p_txt, size_t size, char* error_desc);

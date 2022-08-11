@@ -262,3 +262,28 @@ void convert_enc_plain_txt_to_spec_chars(wchar_t* plainSpec, char* binCont, char
 	FREE(xoredIndex);
 	FREE(key);
 }
+
+void convert_spec_PPS_to_binary(char* result, const wchar_t* specPPS, char* progFileContent)
+{
+	char* lookupKeys = ALLOC(sizeof(char) * 64 * 6 + 1);
+
+	size_t shift = 0;
+
+	for (size_t i = 0; i < 7; i++)
+	{
+		pps_get_nth_lookup_tbl(lookupKeys, i, progFileContent);
+
+		struct map_t* decr_map_s = init_enc_spec_chars_table(lookupKeys);
+
+		wchar_t vOut[2] = { specPPS[i], 0 };
+		char* key = map_get_key_by_val(decr_map_s, vOut);
+		strcpy_s(result + shift, strlen(key) + 1, key);
+		shift += 6;
+
+		free_struct_map(decr_map_s);
+	}
+
+	result[42] = '\0';
+
+	FREE(lookupKeys);
+}

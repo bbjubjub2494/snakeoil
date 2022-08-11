@@ -52,3 +52,34 @@ void make_single_pad(char* pad, char* row)
 
 	FREE(temp);
 }
+
+size_t get_first_used_pad_id(size_t* pads_list, size_t count, const char* pads_dir, char* pps, size_t* offset)
+{
+	size_t pad_id = 0;
+	size_t pad_offset = 0;
+
+	char* pad_path = ALLOC(sizeof(char) * _MAX_PATH);
+	char* pad_name = ALLOC(sizeof(char) * 8 + 1);
+
+	for (size_t i = 0; i < count; i++)
+	{
+		_ui64toa_s(pads_list[i], pad_name, 9, 10);
+		strcat_s(pad_name, 9, ".txt");
+
+		strcpy_s(pad_path, _MAX_PATH, pads_dir);
+		pad_path[strlen(pads_dir)] = '\0';
+		strcat_s(pad_path, _MAX_PATH, "\\");
+		strcat_s(pad_path, _MAX_PATH, pad_name);
+
+		pad_offset = find_str_in_file(pad_path, pps);
+		if (-1 != pad_offset)
+		{
+			pad_id = pads_list[i];
+			*offset = pad_offset;
+
+			return pad_id;
+		}
+	}
+
+	return 0;
+}

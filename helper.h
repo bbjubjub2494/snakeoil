@@ -58,24 +58,31 @@ char** dirlist(char dirname[], char const* ext, size_t* elems);
 
 // Get file exten
 char* get_file_ext(const char* filename);
+char* build_file_full_path(const char* dir, const char* name);
+unsigned char* xor_short_strings(const char* str1, char* str2);
+
+wchar_t* int2wstr(size_t in);
+wchar_t* wget_file_name_from_path(wchar_t* path);
 
 int  set_file_mode_to_utf(FILE** f);
 int  is_file_empty(FILE* f);
 int  is_file_exists(const char* fname);
 
-size_t bindec(const char* bin);
 void fmakeXOR(char* first, char* second);
 void fmakeXNOR(char* first, char* second);
-size_t arrayUniqueWithoutSorting(char* input[], size_t s);
-char* build_file_full_path(const char* dir, const char* name);
-size_t get_ones_count_in_file(char* s);
-int is_number_in_1SD_range(size_t number);
-size_t divisible_by_six(size_t num);
-int natural_compare(const void* a, const void* b);
-unsigned char* xor_short_strings(const char* str1, char* str2);
-wchar_t* int2wstr(size_t in);
-/* Decryption item removed */
 void wcs_write_log(FILE* f, wchar_t* data);
 void write_log(FILE* f, const char* data);
 void int_write_log(FILE* f, char* description, size_t val);
+
+size_t arrayUniqueWithoutSorting(char* input[], size_t s);
+size_t get_ones_count_in_file(char* s);
+size_t bindec(const char* bin);
+size_t divisible_by_six(size_t num);
+
+int is_number_in_1SD_range(size_t number);
+int natural_compare(const void* a, const void* b);
 int is_array_set_to_zero(size_t* a, size_t size);
+int find_str_in_file(char const* fname, char* str);
+
+
+

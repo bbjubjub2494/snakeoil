@@ -195,7 +195,64 @@ void W_PSP(wchar_t* buffer, size_t startP, size_t jumpPoint)
     FREE(resultBuffer);
 }
 
-/* Decryption item removed */
+wchar_t* reverse_PSP_decr(wchar_t* buffer, size_t startP, size_t jumpPoint)
+{
+    size_t gc = 0, contentLen, contentBaseLen, next_Prime, index = 0, ghostCharsCount = 0;
+    wchar_t* reversedArray;
+
+    /*Get the len of result content*/
+    contentBaseLen = contentLen = wcslen(buffer);
+
+    startP = startP % contentBaseLen;
+    size_t jumpP = jumpPoint % contentBaseLen;
+
+    if (jumpP == 0 && contentBaseLen < 100)
+    {
+        jumpP = 1;
+    }
+    else
+    {
+        validate_jump_point(&jumpP);
+    }
+
+    if (startP >= 0 && contentBaseLen < 100)
+    {
+        /* Do nothing */
+        ;
+    }
+    else
+    {
+        validate_start_point(&startP);
+    }
+    gc = get_ghost_bits_count(buffer);
+
+    wchar_t* result = ALLOC(sizeof(wchar_t) * (contentBaseLen + gc + 2));
+
+    recover_PSP(result, buffer, startP, jumpP);
+
+    contentLen = wcslen(result);
+
+    reversedArray = ALLOC(sizeof(wchar_t) * (contentLen + 2));
+    for (size_t i = 0; i < contentLen; i++)
+    {
+        index = (startP + (jumpP * i)) % contentLen;
+        reversedArray[index] = result[i];
+
+    }
+    reversedArray[contentLen] = L'\0';
+
+    /* Check if file size number is Prime number */
+    if (isPrime(contentLen - gc) == 0)
+    {
+        //not a prime?
+        //trim ghost chars from the end
+        next_Prime = nextPrime(contentLen - gc);
+        delete_ghost_bits(reversedArray, gc);
+    }
+
+    FREE(result);
+    return reversedArray;
+}
 
 /* Decryption item removed */
 

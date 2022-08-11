@@ -544,3 +544,194 @@ int get_member_partially_available_Pad_index(size_t* padList, size_t total_pads_
 		return (int)total_pads_count - 1;
 	}
 }
+
+/* Get PPS by points array from the given content */
+void get_PPS_by_points_array(wchar_t* pps, wchar_t* c, size_t* points)
+{
+	size_t c_len;
+	size_t effectivePoint = 0;
+
+	c_len = wcslen(c) - 7;
+
+	for (int i = 6; i >= 0; i--)
+	{
+		if (c_len < points[i])
+		{
+			effectivePoint = points[i] % c_len;
+		}
+		else
+		{
+			effectivePoint = points[i];
+		}
+		wmemcpy(pps + i, c + effectivePoint, 1);
+
+		remove_spec_char(c, effectivePoint);
+	}
+
+	pps[7] = '\0';
+}
+
+struct bitsInfo w_compute_bits_info(wchar_t* binContent, char* circle, char* enc_cfg_f_path, size_t member_id, unsigned int is_first_call, char* error_desc)
+{
+	struct bitsInfo bits_i = { 0 };
+	struct circle circle_s = { 0 };
+
+	size_t c_len = wcslen(binContent) + 7;
+
+	// Set requested bits count. It does not matter is this first call for enc or not
+	bits_i.requestedBitsCount = (c_len - SPEC_PPS_LEN - SPEC_CHAR_LEN) * 6;
+
+	// Get members total count in the Circle
+	int members_count = get_circle_members_count(circle, error_desc);
+
+	if (members_count <= 0)
+	{
+		bits_i.requestedBitsCount = 0;
+		return bits_i;
+	}
+
+	// Get overall data about the Circle
+	get_circle_data_by_name(&circle_s, circle, error_desc);
+
+	// Get the member total Pads count
+	size_t _member_pads_count = get_member_total_pads_count(member_id, circle_s.pads_path, members_count, error_desc);
+
+	// Total bits for member
+	size_t _member_total_bits_count = _member_pads_count * PAD_LEN;
+
+	if (is_first_call > 0)
+	{
+		// It is a first call of enc
+
+		// Set total bits count
+		bits_i.totalBitsCount = _member_total_bits_count;
+
+		// Check if there are enough bits for enc
+		if (_member_total_bits_count <= c_len)
+		{
+			size_t _addit_P_count = (c_len - _member_total_bits_count) / PAD_LEN + 1;
+
+			// Return error with all fileds set to 0 except requested filed set to needed pads count
+			bits_i.availableBitsCount = 0;
+			bits_i.requestedBitsCount = _addit_P_count;
+			bits_i.totalBitsCount = 0;
+			bits_i.usedBitsCount = 0;
+
+			return bits_i;
+		}
+
+		// Set available bits count
+		bits_i.availableBitsCount = _member_total_bits_count;
+
+		// Set used bits
+		bits_i.usedBitsCount = 0;
+	}
+
+	else
+	{
+		/* Since there is enc.cfg it means it is a not first enc process, so we need to   */
+		/* get used bits count from the enc.cfg file.                                     */
+		size_t used_Bits_Count = get_option_from_enc_cfg(enc_cfg_f_path, "usedBitsCount", error_desc).int_value;
+
+		/* Get available bits from the config file                                        */
+		size_t available_Bits = get_option_from_enc_cfg(enc_cfg_f_path, "availableBitsCount", error_desc).int_value;
+
+		// Check if there are enough bits for dec
+		if (available_Bits <= c_len)
+		{
+			size_t _addit_P_count = (c_len - available_Bits) / PAD_LEN + 1;
+
+			// Return error with all fileds set to 0 except requested filed set to needed pads count
+			bits_i.availableBitsCount = 0;
+			bits_i.requestedBitsCount = _addit_P_count;
+			bits_i.totalBitsCount = 0;
+			bits_i.usedBitsCount = 0;
+
+			return bits_i;
+		}
+
+		// Set total bits count
+		bits_i.totalBitsCount = _member_total_bits_count;
+
+		// Set available bits count
+		bits_i.availableBitsCount = available_Bits;
+
+		// Set used bits
+		bits_i.usedBitsCount = used_Bits_Count;
+	}
+
+	return bits_i;
+}
+
+void remove_spec_char(wchar_t* c, size_t pp)
+{
+	/* 1 position for spec char */
+	size_t length = wcslen(c) - 1;
+
+	if (length < pp) {
+		pp = pp % length;
+	}
+
+	wmemmove(c + pp, c + pp + 1, length - pp);
+	c[length] = L'\0';
+}
+
+struct encryptionCfg prepare_enc_cfg_file_data(const char* pad_path, size_t* pads_list, size_t mem_id, size_t offset, char* error_desc)
+{
+	struct encryptionCfg encData = { 0 };
+
+	char* firstPadPath = CALLOC(sizeof(char) * _MAX_PATH, 1);
+
+	/* Get the first pad of particular member.                                        */
+	/* Due to array indexing starts from 0, so member ID should be (-1)               */
+	/* For creating encryption fresh config file we ALWAYS using member's first pad!  */
+
+	/* Build the first pad full path!                                                 */
+	strcat_s(firstPadPath, _MAX_PATH, pad_path);
+
+	if (mem_id <= 0)
+	{
+		strcpy_s(error_desc, 256, "\nError: Member ID could not be less or equal to zero.\n");
+		return encData;
+	}
+	else
+	{
+		strcat_s(firstPadPath, _MAX_PATH, "\\");
+		char padIndex[11];
+		_ui64toa_s(pads_list[0], padIndex, sizeof(padIndex), 10);
+		strcat_s(firstPadPath, _MAX_PATH, padIndex);
+		strcat_s(firstPadPath, _MAX_PATH, ".txt");
+	}
+
+	int open_status;
+
+	/*Accept the file and try to open it*/
+	FILE* f_member_1_pad = NULL;
+	/*Trying to open the file*/
+	f_member_1_pad = open_file(firstPadPath, FILE_MODE_READ, &open_status);
+
+	if (open_status != 0)
+	{
+		strcpy_s(error_desc, 256, "\nError: When trying to open a file for preparing enc data.\n");
+		return encData;
+	}
+
+	/* Read whole file content into memory                                             */
+	char* pad_content;
+	size_t contentSize = 0;
+	int readStatus;
+
+	pad_content = c_read_file(f_member_1_pad, &readStatus, &contentSize);
+	if (readStatus)
+	{
+		strcpy_s(error_desc, 256, "\nError: There was an error when reading first pad for config file.\n");
+		return encData;
+	}
+
+	encData = create_in_memeory_enc_cfg_file(pad_content, offset);
+
+	fclose(f_member_1_pad);
+	FREE(pad_content);
+
+	return encData;
+}

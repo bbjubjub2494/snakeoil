@@ -61,4 +61,4 @@ void convert_plain_short_txt_to_spec_chars(wchar_t* pSpec, char* pTxt, char* xor
 void convert_enc_PPS_to_spec_char(wchar_t* ppsSpec, char* pps, char* lookupKeys);
 void convert_enc_PPS_to_spec_chars_simple(wchar_t* ppsSpec, char* pps);
 void convert_enc_plain_txt_to_spec_chars(wchar_t* plainSpec, char* binCont, char* xorBits, char* lookupKeys);
-/* Decryption item removed */
+void convert_spec_PPS_to_binary(char* result, const wchar_t* specPPS, char* progFileContent);
